@@ -11,6 +11,8 @@ Examples:
 
 A filled circle:
 
+![Circle](https://raw.githubusercontent.com/timyates/ascii-image/master/examples/circle.png)
+
 ```java
 List<String> circle = Arrays.asList(
     "· · · · · 1 · · · · ·",
@@ -36,6 +38,8 @@ ImageIO.write(img, "png", new File("/tmp/circle.png"));
 ```
 
 A beetle:
+
+![Beetle](https://raw.githubusercontent.com/timyates/ascii-image/master/examples/beetles.png)
 
 ```java
 List<String> beetles = Arrays.asList(
