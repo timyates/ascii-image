@@ -1,4 +1,6 @@
-### Java 8 copy of the ASCIImage project
+## Java 8 copy of the ASCIImage project
+
+For original, see: http://cocoamine.net/blog/2015/03/20/replacing-photoshop-with-nsstring/
 
 Todo:
 =====
