@@ -1,0 +1,122 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.3'
+        classpath 'org._10ne.gradle:rest-gradle-plugin:0.1.1'
+    }
+}
+
+apply plugin: 'maven-publish'
+apply plugin: 'bintray'
+apply plugin: 'groovy'
+
+group = "com.bloidonia"
+version = "1.0"
+description = "ASCII Art to Images"
+
+repositories {
+    jcenter()
+    mavenCentral()
+}
+
+dependencies {
+    testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.3'
+}
+
+task sourcesJar( type: Jar ) {
+    from sourceSets.main.allSource
+    classifier = 'sources'
+}
+
+artifacts {
+    archives jar
+    archives sourcesJar
+}
+
+def pomConfig = {
+    scm {
+        url 'https://github.com/timyates/ascii-image'
+        connection 'scm:https://github.com/timyates/ascii-image.git'
+        developerConnection 'scm:git://github.com/timyates/ascii-image.git'
+    }
+    licenses {
+        license {
+            name 'The Apache Software License, Version 2.0'
+            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+            distribution 'repo'
+        }
+    }
+    developers {
+        developer {
+            id 'tim_yates'
+            name 'Tim Yates'
+            email 'tim.yates@gmail.com'
+        }
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            artifact sourcesJar {
+                classifier "sources"
+            }
+
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('name', 'ascii-image')
+                root.appendNode('description', 'A Java Clone of the ASCIImage Cocoa tool.')
+                root.appendNode('url', 'http://timyates.github.com/groovy-stream/')
+                root.appendNode('inceptionYear', '2015')
+                root.children().last() + pomConfig
+            }
+        }
+    }
+}
+
+
+if( !hasProperty( 'bintrayUsername' ) ) {
+    ext.bintrayUsername = ''
+}
+
+if( !hasProperty( 'bintrayKey' ) ) {
+    ext.bintrayKey = ''
+}
+
+if( !hasProperty( 'keyPhrase' ) ) {
+    ext.keyPhrase = ''
+}
+
+bintray {
+    user = bintrayUsername
+    key = bintrayKey
+    publications = ['mavenJava'] // When uploading Maven-based publication files
+    pkg {
+        repo = 'ascii-image'
+        name = 'ascii-image'
+        desc = 'A Java 8 version of ASCIImage.'
+        licenses = ['Apache-2.0']
+        labels = ['java', 'image']
+    }
+    dryRun = false
+}
+
+assemble.dependsOn( test )
+bintrayUpload.dependsOn( assemble )
+
+task push( type:org._10ne.gradle.rest.RestTask, dependsOn: bintrayUpload ) {
+    description 'Test, Assemble, Push to bintray, and sign it.'
+    httpMethod = 'post'
+    uri = "https://api.bintray.com/gpg/timyates/groovy-stream/groovy-stream/versions/$version?passphrase=$keyPhrase"
+    username = bintrayUsername
+    password = bintrayKey
+}
