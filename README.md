@@ -32,7 +32,7 @@ BufferedImage img = AsciImageProcessor
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         }))
         .render(e -> e.graphics(g -> {
-            g.setPaint(Color.DARK_GRAY);
+            g.setPaint(Color.RED);
         }));
 ImageIO.write(img, "png", new File("/tmp/circle.png"));
 ```
