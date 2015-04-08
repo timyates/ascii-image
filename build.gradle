@@ -14,7 +14,7 @@ apply plugin: 'bintray'
 apply plugin: 'groovy'
 
 group = "com.bloidonia"
-version = "1.0"
+version = "1.1"
 description = "ASCII Art to Images"
 
 repositories {
@@ -26,11 +26,14 @@ dependencies {
     testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '2.3'
+javadoc { options.links = ['http://docs.oracle.com/javase/8/docs/api/'] }
+
+task javadocJar( type: Jar, dependsOn: javadoc ) {
+    classifier 'javadoc'
+    from javadoc.destinationDir
 }
 
-task sourcesJar( type: Jar ) {
+task sourcesJar(type: Jar) {
     from sourceSets.main.allSource
     classifier = 'sources'
 }
@@ -38,6 +41,7 @@ task sourcesJar( type: Jar ) {
 artifacts {
     archives jar
     archives sourcesJar
+    archives javadocJar
 }
 
 def pomConfig = {
@@ -67,15 +71,13 @@ publishing {
         mavenJava(MavenPublication) {
             from components.java
 
-            artifact sourcesJar {
-                classifier "sources"
-            }
-
+            artifact sourcesJar { classifier "sources" }
+            artifact javadocJar { classifier "javadoc" }
             pom.withXml {
                 def root = asNode()
                 root.appendNode('name', 'ascii-image')
                 root.appendNode('description', 'A Java Clone of the ASCIImage Cocoa tool.')
-                root.appendNode('url', 'http://timyates.github.com/groovy-stream/')
+                root.appendNode('url', 'https://github.com/timyates/ascii-image')
                 root.appendNode('inceptionYear', '2015')
                 root.children().last() + pomConfig
             }
@@ -116,7 +118,9 @@ bintrayUpload.dependsOn( assemble )
 task push( type:org._10ne.gradle.rest.RestTask, dependsOn: bintrayUpload ) {
     description 'Test, Assemble, Push to bintray, and sign it.'
     httpMethod = 'post'
-    uri = "https://api.bintray.com/gpg/timyates/groovy-stream/groovy-stream/versions/$version?passphrase=$keyPhrase"
+    uri = "https://api.bintray.com/gpg/timyates/ascii-image/ascii-image/versions/$version?passphrase=$keyPhrase"
     username = bintrayUsername
     password = bintrayKey
 }
+
+task wrapper(type: Wrapper) { gradleVersion = '2.3' }
